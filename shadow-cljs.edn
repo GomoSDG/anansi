@@ -1,0 +1,16 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ []
+
+ :dev-http {8020 "public"}
+
+ :builds
+ {:minesweeper {:target :browser
+                :output-dir "public/assets/app/js"
+                :asset-path "/assets/app/js"
+                :modules {:main {:entries [minesweeper.core]}}}}}
