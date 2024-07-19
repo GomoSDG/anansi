@@ -35,13 +35,10 @@
                            {:node-id ce
                             :label (calculate-label x xe y ye)})
                          (set))]]
-    (do
-      (println "x = " x " : " (range (dec x) (+ x 2)))
-      (println "y = " y " : " (range (dec y) (+ y 2)))
-      {:x x
-       :y y
-       :neighbours edges
-       :id c})))
+    {:x x
+     :y y
+     :neighbours edges
+     :id c}))
 
 
 (comment
