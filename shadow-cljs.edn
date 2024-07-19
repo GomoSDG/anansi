@@ -13,4 +13,4 @@
  {:minesweeper {:target :browser
                 :output-dir "public/assets/app/js"
                 :asset-path "/assets/app/js"
-                :modules {:main {:entries [minesweeper.core]}}}}}
+                :modules {:main {:init-fn minesweeper.core/main}}}}}
