@@ -32,7 +32,7 @@
                                ye (range (dec y) (+ y 2))
                                :let [ce  (str xe "," ye)]
                                :when (and (not= c ce) (>= xe 0) (>= ye 0) (< xe width) (< ye height))]
-                           {:node-id ce
+                           {:cell-id ce
                             :label (calculate-label x xe y ye)})
                          (set))]]
     {:x x
