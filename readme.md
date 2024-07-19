@@ -5,5 +5,7 @@ In this project I revisit my minesweeper implementations to explore data structu
 
 ## Getting Started
 
+### Running the app
+
 ### Development Server
-To start the development server you will need to run `npm run server` from your your command line. This will start a server on port `8020` on your local machine.
+To start the development server you will need to run `npm run server` from your your command line. This will start a server on port `8020` on your local machine. You can then connect your repl using your preferred code editor's tools.
