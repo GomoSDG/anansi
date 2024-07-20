@@ -5,7 +5,7 @@
   (println "Hello World!"))
 
 
-(defn calculate-label [x1 x2 y1 y2]
+(defn calculate-orientation [x1 x2 y1 y2]
   (let [num (- y2 y1)
         denum (- x2 x1)
         slope (/ num denum)]
@@ -35,22 +35,22 @@
                                            :let [ce  (str xe "," ye)]
                                            :when (and (not= c ce) (>= xe 0) (>= ye 0) (< xe width) (< ye height))]
                                        {:cell-id ce
-                                        :label (calculate-label x xe y ye)})
+                                        :orientation (calculate-orientation x xe y ye)})
                                      (set))]]
                 {:x x
                  :y y
                  :neighbours edges
-                 :content nil
+                 :data nil
                  :id c})
               (map (juxt :id identity))
               (into {}))})
 
 
-(defn set-cell-content
-  ([grid x y content]
-   (set-cell-content grid (str x "," y) content))
-  ([grid coords content]
-   (update-in grid [:data coords] assoc :content content)))
+(defn set-cell-data
+  ([grid x y data]
+   (set-cell-data grid (str x "," y) data))
+  ([grid coords data]
+   (update-in grid [:data coords] assoc :data data)))
 
 
 (defn get-cell
@@ -60,30 +60,65 @@
    (get-in grid [:data coords])))
 
 
-(defn get-cell-content
+(defn get-cell-data
   ([grid x y]
-   (get-cell-content grid (str x "," y)))
+   (get-cell-data grid (str x "," y)))
   ([grid coords]
    (-> (get-cell grid coords)
-       (:content))))
+       (:data))))
+
+
+(defn token-won?
+  ([grid orientation token x y]
+   (token-won? grid orientation token (str x "," y)))
+  ([grid orientation token coords]
+   (loop [q #queue [(get-cell grid coords)]
+          l 0
+          t (set coords)]
+     (let [{:keys [neighbours id]} (peek q)
+           n' (->> (filter #(and (= (:orientation %) orientation)
+                                 (not (t (:cell-id %))))
+                           neighbours)
+                   (map #(get-cell grid (:cell-id %)))
+                   (filter #(= token (:data %))))]
+       (if-not (not-empty n')
+         (>= l 2)
+         (recur (into (pop q) n')
+                (inc l)
+                (conj t id)))))))
+
+
+(defn grid-layout [width height]
+  (->> (for [y (range width)
+             x (range height)]
+         (str x "," y))
+       (partition-all width)))
+
+
+(defn print-grid [{:keys [width height] :as grid}]
+  (let [layout (grid-layout width height)]
+    (doseq [rows layout]
+      (doseq [coords rows]
+        (print "  |" (get-cell-data grid coords) "|  "))
+      (print "\n"))))
 
 
 (comment
+  (-> (initialise-grid 10 10)
+      (set-cell-data 1 0 :X)
+      (set-cell-data 1 1 :X)
+      (set-cell-data 1 2 :X)
+      #_(print-grid )
+      (token-won? :vertical :X 1 0))
+
+  (grid-layout 3 3)
+
+  (print-grid (initialise-grid 3 3))
+
+  (comment
+    [[[0 0] [1 0] [2 0]]
+     [[0 1]]])
+
   (-> (initialise-grid 3 3)
-      (set-cell-content  0 0 :X)
-      (get-cell 0 0))
-
-  )
-
-
-(comment
-  (time (initialise-grid 2 2))
-  ;; Node
-  {:content :empty ; :empty | :mine
-   :x 0 ; num
-   :y 0 ; num
-   :neighbours []
-   :id "0,0"}
-  ;; Edge
-  {:node-id "0,0"}
-  )
+      (set-cell-data  0 0 :X)
+      (get-cell-data 0 0)))
