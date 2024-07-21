@@ -47,7 +47,7 @@
       :horizontal)))
 
 
-(defn initialise-grid [width height]
+(defn initialise-grid [width height & {:keys [initial-data]}]
   {:width width
    :height height
    :data (->> (for [x (range width)
@@ -64,10 +64,20 @@
                 {:x x
                  :y y
                  :neighbours edges
-                 :data nil
+                 :data initial-data
                  :id c})
               (map (juxt :id identity))
               (into {}))})
+
+
+(defn generate-mine-coords [grid-size num-mines]
+  (loop [mine-coords #{}]
+    (let [coords (str (rand-int grid-size) "," (rand-int grid-size))]
+      (if (= (count mine-coords) num-mines)
+        mine-coords
+        (recur (if (contains? mine-coords coords)
+                 mine-coords
+                 (conj mine-coords coords)))))))
 
 
 (defn set-cell-data
@@ -90,6 +100,15 @@
   ([grid coords]
    (-> (get-cell grid coords)
        (:data))))
+
+
+(defn place-mines [{:keys [height] :as grid} num-mines]
+  (let [mine-coords (generate-mine-coords height num-mines)
+        mine {:content :mine}]
+    (reduce (fn [grid coords]
+              (set-cell-data grid coords mine))
+            grid
+            mine-coords)))
 
 
 (defn token-won?
@@ -132,8 +151,14 @@
       (set-cell-data 1 0 :X)
       (set-cell-data 1 1 :X)
       (set-cell-data 1 2 :X)
-      #_(print-grid )
-      (token-won? :vertical :X 1 0))
+      (print-grid)
+      #_(token-won? :vertical :X 1 0))
+
+  (-> (initialise-grid 10 10
+                       :initial-data {:content :empty})
+      (place-mines 5)
+      (print-grid))
+
 
   (grid-layout 3 3)
 
