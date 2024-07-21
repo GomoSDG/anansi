@@ -1,8 +1,32 @@
 (ns minesweeper.core)
 
 
+(def app (atom nil))
+
+
+(comment
+  (let [app (js/PIXI.Application.)]
+    (-> (.init app #js {"width" 500 "height" 500})
+        (.then (fn []
+                 (.appendChild js/document.body (.-canvas app)))))))
+
+
+(defn initialise-pixi [container x y]
+  (let [app (js/PIXI.Application.)]
+    (-> (.init app #js {"width" x "height" y})
+        (.then (fn []
+                 (.appendChild container (.-canvas app)))))
+    app))
+
+
 (defn main []
-  (println "Hello World!"))
+  (let [container (.getElementById js/document "app")]
+    (println "Hello World!!" container)
+    (reset! app (initialise-pixi container 640 360))))
+
+
+(comment
+  (initialise-pixi 20 20))
 
 
 (defn calculate-orientation [x1 x2 y1 y2]
