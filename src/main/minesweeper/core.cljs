@@ -1,6 +1,7 @@
 (ns minesweeper.core
   (:require [anansi.core :as anansi]
-            [promesa.core :as p]))
+            [promesa.core :as p]
+            [clojure.core.async :refer [chan go-loop <! put!]]))
 
 
 (def app (atom nil))
@@ -48,7 +49,7 @@
   revealed?)
 
 
-(defn has-mine? [{:keys [content] :as data}] 
+(defn has-mine? [{:keys [content]}] 
   (= :mine content))
 
 (defn is-empty? [{:keys [content]}]
@@ -79,7 +80,7 @@
         edges (into #queue [] (anansi/get-edge-cells @grid coords))]
     (if-not (is-f-cell? has-mine? block)
       (when (is-f-cell? (complement revealed?) block)
-        (reveal! (get sprites coords) (update block :edges #(map (fn [{:keys [cell-id]}] (anansi/get-cell @grid cell-cid)) %)) grid textures)
+        (reveal! (get sprites coords) (update block :edges #(map (fn [{:keys [cell-id]}] (anansi/get-cell @grid cell-id)) %)) grid textures)
         (loop [edge-queue edges
                visited #{}
                actions []
@@ -87,7 +88,6 @@
           (let [e (peek edge-queue)
                 popped (pop edge-queue)
                 edge-cells (anansi/get-edge-cells @grid (:id e))]
-            (println "TRAVERSE!")
             (if-not e
               actions
               (recur (if (and (is-f-cell? (complement has-mine?) e)
@@ -96,7 +96,8 @@
                        (into popped (filter #(and (-> (:id %) (visited) not)
                                                   (not= (:id %) (:id e))
                                                   (not (apply included [(:id %)]))
-                                                  (is-f-cell? (complement revealed?) %))
+                                                  (is-f-cell? (complement revealed?) %)
+                                                  (is-f-cell? (complement has-mine?) e))
                                             edge-cells))
                        popped)
                      (conj visited (:id e))
@@ -147,55 +148,6 @@
      0 zero}))
 
 
-(defn initialise-minesweeper [app {:keys [width height grid-size]}]
-  (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size
-                                                 :initial-data (block))
-                         (place-mines 75)))
-          block-width (get-factor-larger-than width 25)
-          block-height (get-factor-larger-than height 18)
-          queue (atom #queue [])
-          sprites (atom {})
-          cell-info (anansi/get-cell-info @grid)
-          textures (create-texture-map)]
-    (doseq [idx (range (count cell-info))]
-      (let [{:keys [x y id]} (nth cell-info idx 0)
-            block (js/PIXI.Sprite. (textures :hidden))
-            xc (* x block-width)
-            yc (* y block-height)]
-        (set! (.-x block) xc)
-        (set! (.-y block) yc)
-        (set! (.-height block) block-height)
-        (set! (.-width block) block-width)
-        (set! (.-eventMode block) "static")
-        (.on block "click" #(swap! queue conj {:type :open :coords id}))
-        (swap! sprites assoc id block)
-        (.addChild (.-stage app) block)
-        (.add (.-ticker app)
-              (fn [] (when-let [action (peek @queue)]
-                       (do
-                         (swap! queue into
-                                (apply-action {:action action
-                                               :action-type (:type action)
-                                               :grid grid
-                                               :sprites @sprites
-                                               :textures textures}))
-                         (swap! queue pop)))))))))
-
-
-(defn main []
-  (let [container (.getElementById js/document "app")]
-    (println "Hello World!!" container)
-    (reset! app (initialise-pixi container 640 360 initialise-minesweeper
-                                 :grid-size 20))))
-
-
-(comment
-  (initialise-pixi 20 20))
-
-
-
-
-
 (defn generate-mine-coords [grid-size num-mines]
   (loop [mine-coords #{}]
     (let [coords (str (rand-int grid-size) "," (rand-int grid-size))]
@@ -213,6 +165,58 @@
               (anansi/set-cell-data grid coords mine))
             grid
             mine-coords)))
+
+
+(defn initialise-minesweeper [app {:keys [width height grid-size]}]
+  (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size
+                                                 :initial-data (block))
+                         (place-mines 75)))
+          block-width (get-factor-larger-than width 25)
+          block-height (get-factor-larger-than height 18)
+          #_#_queue (atom #queue [])
+          sprites (atom {})
+          cell-info (anansi/get-cell-info @grid)
+          textures (create-texture-map)
+          action-chan (chan 1000)]
+    (doseq [idx (range (count cell-info))]
+      (let [{:keys [x y id]} (nth cell-info idx 0)
+            block (js/PIXI.Sprite. (textures :hidden))
+            xc (* x block-width)
+            yc (* y block-height)]
+        (set! (.-x block) xc)
+        (set! (.-y block) yc)
+        (set! (.-height block) block-height)
+        (set! (.-width block) block-width)
+        (set! (.-eventMode block) "static")
+        (.on block "click" #_#(swap! queue conj {:type :open :coords id})
+             #(put! action-chan {:type :open :coords id}))
+        (swap! sprites assoc id block)
+        (.addChild (.-stage app) block)
+        #_(.add (.-ticker app)
+                (fn [] (when-let [action (peek @queue)]
+                         (swap! queue into
+                                (apply-action {:action action
+                                               :action-type (:type action)
+                                               :grid grid
+                                               :sprites @sprites
+                                               :textures textures}))
+                         (swap! queue pop))))
+        (go-loop []
+          (let [action (<! action-chan)]
+            (doseq [a (apply-action {:action action
+                                     :action-type (:type action)
+                                     :grid grid
+                                     :sprites @sprites
+                                     :textures textures})]
+              (put! action-chan a)))
+          (recur))))))
+
+
+(defn main []
+  (let [container (.getElementById js/document "app")]
+    (println "Hello World!!" container)
+    (reset! app (initialise-pixi container 640 360 initialise-minesweeper
+                                 :grid-size 20))))
 
 
 (defn token-won?
