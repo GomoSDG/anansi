@@ -1,6 +1,7 @@
 node_modules/
-public/js
-public/assets/app/js
+public/assets/app/js/main.js
+public/assets/app/js/cljs-runtime
+public/assets/app/js/manifest.edn
 
 /target
 /checkouts
