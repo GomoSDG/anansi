@@ -1,11 +1,11 @@
 node_modules/
-public/assets/app/js/main.js
-public/assets/app/js/cljs-runtime
-public/assets/app/js/manifest.edn
+**/cljs-runtime
 
 /target
 /checkouts
 /src/gen
+
+**/js/
 
 pom.xml
 pom.xml.asc

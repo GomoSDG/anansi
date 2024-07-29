@@ -1,45 +1,12 @@
 (ns minesweeper.core
-  (:require [anansi.core :as anansi]
-            [promesa.core :as p]
-            [clojure.core.async :refer [chan go-loop <! put!]]))
-
-
-(def app (atom nil))
-
-
-(comment
-  (let [app (js/PIXI.Application.)]
-    (-> (.init app #js {"width" 500 "height" 500})
-        (.then (fn []
-                 (.appendChild js/document.body (.-canvas app)))))))
-
-
-(defn initialise-pixi [container width height initialiser & {:keys [] :as options}]
-  (let [app (js/PIXI.Application.)]
-    (-> (.init app #js {"width" width "height" height})
-        (.then (fn []
-                 (.appendChild container (.-canvas app))
-                 (initialiser app (into {:width width :height height} options)))))
-    app))
-
-
-(defn get-factor-larger-than [n x & [max]]
-  (loop [num x]
-    (cond
-      (= 0 (mod n num))
-      num
-
-      (> num (or max ##Inf))
-      nil
-
-      :else
-      (recur (inc num)))))
+  (:require [anansi.core :as anansi]))
 
 
 (defn block [& [content]]
   {:content (or content :empty)
    :flagged? false
    :revealed? false})
+
 
 (defn flagged? [{:keys [flagged?]}]
   flagged?)
@@ -51,6 +18,7 @@
 
 (defn has-mine? [{:keys [content]}] 
   (= :mine content))
+
 
 (defn is-empty? [{:keys [content]}]
   (= :empty content))
@@ -121,33 +89,6 @@
     []))
 
 
-(defn create-texture-map []
-  (p/let [hidden (.load js/PIXI.Assets "/assets/app/img/minesweeper/unknown_2_128x128.png")
-          question (.load js/PIXI.Assets "/assets/app/img/minesweeper/question_2_128x128.png")
-          empty (.load js/PIXI.Assets "/assets/app/img/minesweeper/empty_128x128.png")
-          eight (.load js/PIXI.Assets "/assets/app/img/minesweeper/8_128x128.png")
-          seven (.load js/PIXI.Assets "/assets/app/img/minesweeper/7_128x128.png")
-          six (.load js/PIXI.Assets "/assets/app/img/minesweeper/6_128x128.png")
-          five (.load js/PIXI.Assets "/assets/app/img/minesweeper/5_128x128.png")
-          four (.load js/PIXI.Assets "/assets/app/img/minesweeper/4_128x128.png")
-          three (.load js/PIXI.Assets "/assets/app/img/minesweeper/3_128x128.png")
-          two (.load js/PIXI.Assets "/assets/app/img/minesweeper/2_128x128.png")
-          one   (.load js/PIXI.Assets "/assets/app/img/minesweeper/1_128x128.png")
-          zero (.load js/PIXI.Assets "/assets/app/img/minesweeper/empty_128x128.png")]
-    {:hidden hidden
-     :empty empty
-     :question question
-     1 one
-     2 two
-     3 three
-     4 four
-     5 five
-     6 six
-     7 seven
-     8 eight
-     0 zero}))
-
-
 (defn generate-mine-coords [grid-size num-mines]
   (loop [mine-coords #{}]
     (let [coords (str (rand-int grid-size) "," (rand-int grid-size))]
@@ -167,66 +108,6 @@
             mine-coords)))
 
 
-(defn initialise-minesweeper [app {:keys [width height grid-size]}]
-  (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size :initial-data (block))
-                         (place-mines 75)))
-          block-width (get-factor-larger-than width 25)
-          block-height (get-factor-larger-than height 18)
-          sprites (atom {})
-          cell-info (anansi/get-cell-info @grid)
-          textures (create-texture-map)
-          action-chan (chan 1000)]
-    (doseq [idx (range (count cell-info))]
-      (let [{:keys [x y id]} (nth cell-info idx 0)
-            block (js/PIXI.Sprite. (textures :hidden))
-            xc (* x block-width)
-            yc (* y block-height)]
-        (set! (.-x block) xc)
-        (set! (.-y block) yc)
-        (set! (.-height block) block-height)
-        (set! (.-width block) block-width)
-        (set! (.-eventMode block) "static")
-        (.on block "click" #(put! action-chan {:type :open :coords id}))
-        (swap! sprites assoc id block)
-        (.addChild (.-stage app) block)
-        (go-loop []
-          (let [action (<! action-chan)]
-            (doseq [a (apply-action {:action action
-                                     :action-type (:type action)
-                                     :grid grid
-                                     :sprites @sprites
-                                     :textures textures})]
-              (put! action-chan a)))
-          (recur))))))
-
-
-(defn main []
-  (let [container (.getElementById js/document "app")]
-    (println "Hello World!!" container)
-    (reset! app (initialise-pixi container 640 360 initialise-minesweeper
-                                 :grid-size 20))))
-
-
-(defn token-won?
-  ([grid orientation token x y]
-   (token-won? grid orientation token (str x "," y)))
-  ([grid orientation token coords]
-   (loop [q #queue [(anansi/get-cell grid coords)]
-          l 0
-          t (set coords)]
-     (let [{:keys [neighbours id]} (peek q)
-           n' (->> (filter #(and (= (:orientation %) orientation)
-                                 (not (t (:cell-id %))))
-                           neighbours)
-                   (map #(anansi/get-cell grid (:cell-id %)))
-                   (filter #(= token (:data %))))]
-       (if-not (not-empty n')
-         (>= l 2)
-         (recur (into (pop q) n')
-                (inc l)
-                (conj t id)))))))
-
-
 (comment
   (-> (anansi/initialise-grid 3 3)
       (anansi/set-cell-data 1 0 :X)
@@ -244,10 +125,6 @@
   (anansi/grid-layout 3 3)
 
   (anansi/print-grid (anansi/initialise-grid 3 3))
-
-  (comment
-    [[[0 0] [1 0] [2 0]]
-     [[0 1]]])
 
   (-> (anansi/initialise-grid 3 3)
       (anansi/set-cell-data  0 0 :X)
