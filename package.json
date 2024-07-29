@@ -9,6 +9,6 @@
         "server": "npx shadow-cljs server"
     },
     "dependencies": {
-        "pixi.js": "^8.2.5"
+        "pixi.js": "8.2.5"
     }
 }
