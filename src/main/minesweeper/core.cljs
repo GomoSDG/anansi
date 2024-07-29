@@ -168,12 +168,10 @@
 
 
 (defn initialise-minesweeper [app {:keys [width height grid-size]}]
-  (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size
-                                                 :initial-data (block))
+  (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size :initial-data (block))
                          (place-mines 75)))
           block-width (get-factor-larger-than width 25)
           block-height (get-factor-larger-than height 18)
-          #_#_queue (atom #queue [])
           sprites (atom {})
           cell-info (anansi/get-cell-info @grid)
           textures (create-texture-map)
@@ -188,19 +186,9 @@
         (set! (.-height block) block-height)
         (set! (.-width block) block-width)
         (set! (.-eventMode block) "static")
-        (.on block "click" #_#(swap! queue conj {:type :open :coords id})
-             #(put! action-chan {:type :open :coords id}))
+        (.on block "click" #(put! action-chan {:type :open :coords id}))
         (swap! sprites assoc id block)
         (.addChild (.-stage app) block)
-        #_(.add (.-ticker app)
-                (fn [] (when-let [action (peek @queue)]
-                         (swap! queue into
-                                (apply-action {:action action
-                                               :action-type (:type action)
-                                               :grid grid
-                                               :sprites @sprites
-                                               :textures textures}))
-                         (swap! queue pop))))
         (go-loop []
           (let [action (<! action-chan)]
             (doseq [a (apply-action {:action action
@@ -240,16 +228,15 @@
 
 
 (comment
-  (-> (anansi/initialise-grid 10 10)
+  (-> (anansi/initialise-grid 3 3)
       (anansi/set-cell-data 1 0 :X)
       (anansi/set-cell-data 1 1 :X)
       (anansi/set-cell-data 1 2 :X)
-      #_(anansi/print-grid)
-      (anansi/get-cell-info)
+      #_(anansi/get-cell-data "1,1")
+      (anansi/print-grid)
       #_(token-won? :vertical :X 1 0))
 
-  (-> (anansi/initialise-grid 10 10
-                       :initial-data (block))
+  (-> (anansi/initialise-grid 10 10 :initial-data (block))
       (place-mines 5)
       (anansi/print-grid))
 
