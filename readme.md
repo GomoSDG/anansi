@@ -3,7 +3,8 @@ A graph based datastructure aims to model gridlike things. While exploring graph
 
 # Getting Started
 The following section provides information on how you can run the games that are built on top of anansi. First you will need to run a server. You can do this in the following ways:
-* Run `npm run server` which will start a shadow-cljs server. Connect you repl and run `(do (shadow/watch :<game-of-choice>) (shadow/repl :<game-of-choice>)` where `<game-of-choice>` is the build name according to the shadow-cljs.edn file.
+
+Run `npm run server` which will start a shadow-cljs server. Connect you repl and run `(do (shadow/watch :<game-of-choice>) (shadow/repl :<game-of-choice>)` where `<game-of-choice>` is the build name according to the shadow-cljs.edn file.
 
 ## Tic Tac Toe
 The build name for tic tac toe is `tictactoe`. One you have ran the watch code for this build you can visit `localhost:8021` to open the tic tac toe game.
