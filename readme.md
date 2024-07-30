@@ -1,4 +1,6 @@
 # Anansi
+https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.quora.com%2FWhat-type-of-spider-is-Anansi&psig=AOvVaw01PzIFAjdaVXpFHtr3xDyT&ust=1722411791474000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCOiqrYmizocDFQAAAAAdAAAAABAE![image](https://github.com/user-attachments/assets/2be9d9b2-1983-4327-8332-6776f641bd26)
+
 A graph based datastructure aims to model gridlike things. While exploring graph algorithms and datastructures, I realised that some well known games could be modelled using graph data structures. With Minesweeper and Tic Tac Toe in mind, I began a quest to figure out how well could these fit! In this repository you will find two things: the gridlike datastructure that I have now named Anansi (/əˈnɑːnsi/ ə-NAHN-see; literally translates to spider) after the Akan folktale character. This is because the grid resembles a spider's web. Secondly, you will find a number of games that I aim to model with Anansi.
 
 # Getting Started
