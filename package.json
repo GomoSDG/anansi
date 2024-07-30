@@ -6,7 +6,9 @@
         "shadow-cljs": "2.28.10"
     },
     "scripts": {
-        "server": "npx shadow-cljs server"
+        "server": "npx shadow-cljs server",
+        "minesweeper": "npx shadow-cljs watch minesweeper",
+        "tictactoe": "npx shadow-cljs watch tictactoe"
     },
     "dependencies": {
         "pixi.js": "8.2.5"

@@ -4,7 +4,7 @@
   "minesweeper/src"
   "tictactoe/src"]
 
- :dependencies.
+ :dependencies
  [[funcool/promesa "11.0.678"]]
 
  :dev-http {8020 "minesweeper/public"
@@ -20,4 +20,5 @@
   {:target :browser
    :output-dir "tictactoe/public/assets/app/js"
    :asset-path "/assets/app/js"
-   :modules {:main {:init-fn tictactoe.views/main}}}}}
+   :modules {:main {:init-fn tictactoe.views/main}}
+   :devtools {:watch-dir "tictactoe/public"}}}}
