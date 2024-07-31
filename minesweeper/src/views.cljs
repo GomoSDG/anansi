@@ -3,6 +3,7 @@
             [clojure.core.async :refer [chan go-loop <! put!]]
             [minesweeper.core :as minesweeper]
             [anansi.core :as anansi]
+            [pixi.core :as pixi]
             ["pixi.js" :refer [Assets Sprite Application]]))
 
 
@@ -49,15 +50,6 @@
      0 zero}))
 
 
-(defn initialise-pixi [container width height initialiser & {:keys [] :as options}]
-  (let [app (Application.)]
-    (-> (.init app #js {"width" width "height" height})
-        (.then (fn []
-                 (.appendChild container (.-canvas app))
-                 (initialiser app (into {:width width :height height} options)))))
-    app))
-
-
 (defn initialise-minesweeper [app {:keys [width height grid-size]}]
   (p/let [grid (atom (-> (anansi/initialise-grid grid-size grid-size :initial-data (minesweeper/block))
                          (minesweeper/place-mines 75)))
@@ -94,7 +86,6 @@
 
 (defn main []
   (let [container (.getElementById js/document "app")]
-    #_(println "Hello World!!" container)
-    (reset! app (initialise-pixi container 640 360 initialise-minesweeper
+    (reset! app (pixi/initialise-pixi container 640 360 initialise-minesweeper
                                  :grid-size 20))))
 
