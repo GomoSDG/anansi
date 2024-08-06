@@ -3,31 +3,35 @@
 
 
 (defn token-won?
-  ([grid orientation token x y]
-   (token-won? grid orientation token (str x "," y)))
-  ([grid orientation token coords]
+  ([grid orientation x y token-length]
+   (token-won? grid (str x "," y) token-length orientation))
+  ([grid coords token-length orientation]
    (loop [queue #queue [(anansi/get-cell grid coords)]
-          length 0
+          length 1
           traversed (set coords)]
-     (let [{:keys [neighbours id]} (peek queue)
+     (let [{:keys [edges data id]} (peek queue)
            ;; Get all the neighbours that are in the required orientation and not traversed
            neighbours (->> (filter #(and (= (:orientation %) orientation)
                                          (not (traversed (:cell-id %))))
-                                   neighbours)
+                                   edges)
                            (map #(anansi/get-cell grid (:cell-id %)))
-                           (filter #(= token (:data %))))]
+                           (filter #(= data (:data %))))]
        (if-not (not-empty neighbours)
-         (>= length 2) ;; Win if length is meets requirement
+         (>= length token-length) ;; Win if length is meets requirement
          (recur (into (pop queue) neighbours)
                 (inc length)
-                (conj traversed id)))))))
+                (conj traversed id))))))
+  ([grid coords token-length]
+   (some (partial token-won? grid coords token-length) [:vertical :left :right :horizontal]))
+  ([grid coords]
+   (token-won? grid coords 3)))
 
 
 (comment
   (-> (anansi/initialise-grid 3 3)
-      (anansi/set-cell-data 1 0 :X)
-      (anansi/set-cell-data 1 1 :X)
-      (anansi/set-cell-data 1 2 :X)
+      (anansi/set-cell-data 1 0)
+      (anansi/set-cell-data 1 1)
+      (anansi/set-cell-data 1 2)
       #_(anansi/get-cell-data "1,1")
       (anansi/print-grid)
-      #_(token-won? :vertical :X 1 0)))
+      #_(token-won? :vertical 1 0)))
