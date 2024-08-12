@@ -128,7 +128,7 @@
 
 
 (defn initialise-game [app {:keys [width height]}]
-  (let [action-chan (chan 10000)
+  (let [action-chan (chan 10)
         grid (atom (anansi/initialise-grid game-grid-width game-grid-height))
         info (anansi/get-cell-info @grid)
         box-width (/ width game-grid-width)
@@ -172,7 +172,8 @@
 
 (defn main []
   (let [container (.getElementById js/document "app")
+        size (min (- (.-innerWidth js/window) 20) (- (.-innerHeight js/window) 20))
         app (pixi/initialise-pixi container
-                                  (min (- (.-innerWidth js/window) 20) (- (.-innerHeight js/window) 20))
-                                  (min (- (.-innerWidth js/window) 20) (- (.-innerHeight js/window) 20))
+                                  size
+                                  size
                                   initialise-game)]))

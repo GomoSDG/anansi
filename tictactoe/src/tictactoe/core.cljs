@@ -3,7 +3,7 @@
 
 
 (defn token-won?
-  ([grid orientation x y token-length]
+  ([grid x y token-length orientation]
    (token-won? grid (str x "," y) token-length orientation))
   ([grid coords token-length orientation]
    (loop [queue #queue [(anansi/get-cell grid coords)]
@@ -22,7 +22,7 @@
                 (inc length)
                 (conj traversed id))))))
   ([grid coords token-length]
-   (some (partial token-won? grid coords token-length) [:vertical :left :right :horizontal]))
+   (true? (some (partial token-won? grid coords token-length) [:vertical :left :right :horizontal])))
   ([grid coords]
    (token-won? grid coords 3)))
 

@@ -18,28 +18,37 @@
       (zero? 0)
       :horizontal)))
 
+(defn generate-neighbours [x y width height]
+  (let [c (str x "," y)]
+    (->> (for [xe (range (dec x) (+ x 2))
+               ye (range (dec y) (+ y 2))
+               :let [ce  (str xe "," ye)]
+               :when (and (not= c ce)
+                          (>= xe 0)
+                          (>= ye 0)
+                          (< xe width)
+                          (< ye height))]
+           {:cell-id ce
+            :orientation (calculate-orientation x xe y ye)})
+         (set))))
+
+
+(defn generate-grid-data [width height initial-data]
+  (->> (for [x (range width)
+             y (range height)]
+         {:x x
+          :y y
+          :edges (generate-neighbours x y width height)
+          :data initial-data
+          :id (str x "," y)})
+       (map (juxt :id identity))
+       (into {})))
+
 
 (defn initialise-grid [width height & {:keys [initial-data]}]
   {:width width
    :height height
-   :data (->> (for [x (range width)
-                    y (range height)
-
-                    :let [c (str x "," y)
-                          edges (->> (for [xe (range (dec x) (+ x 2))
-                                           ye (range (dec y) (+ y 2))
-                                           :let [ce  (str xe "," ye)]
-                                           :when (and (not= c ce) (>= xe 0) (>= ye 0) (< xe width) (< ye height))]
-                                       {:cell-id ce
-                                        :orientation (calculate-orientation x xe y ye)})
-                                     (set))]]
-                {:x x
-                 :y y
-                 :edges edges
-                 :data initial-data
-                 :id c})
-              (map (juxt :id identity))
-              (into {}))})
+   :data (generate-grid-data width height initial-data)})
 
 
 (defn grid-layout [width height]
