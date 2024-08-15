@@ -1,4 +1,4 @@
-# Anansi: Graph-Based grid for Grid-like, Turn-based Games
+# Anansi: Graph-Based Grid for Grid-like, Turn-based Games
 
 ![image](https://github.com/user-attachments/assets/2be9d9b2-1983-4327-8332-6776f641bd26)
 
@@ -14,17 +14,16 @@ This repository includes:
 
 To explore and run the games, follow these instructions:
 
-### 1. Setup
+### Setup
 
-Ensure you have the necessary dependencies installed and the server is running.
+Ensure you have the necessary dependencies installed and the server is running before executing the commands for either game.
 
-### 2. Running Tic Tac Toe
+### Running Tic Tac Toe
 
 - **Command**: `npm run tictactoe`
 - **Access**: Open your web browser and visit [http://localhost:8021](http://localhost:8021) to start the Tic Tac Toe game.
 
-### 3. Running Minesweeper
+### Running Minesweeper
 
 - **Command**: `npm run minesweeper`
 - **Access**: Open your web browser and visit [http://localhost:8020](http://localhost:8020) to start the Minesweeper game.
-
