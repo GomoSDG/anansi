@@ -18,6 +18,7 @@
       (zero? 0)
       :horizontal)))
 
+
 (defn generate-neighbours [x y width height]
   (let [c (str x "," y)]
     (->> (for [xe (range (dec x) (+ x 2))

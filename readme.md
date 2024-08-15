@@ -1,15 +1,30 @@
-# Anansi
+# Anansi: Graph-Based grid for Grid-like, Turn-based Games
+
 ![image](https://github.com/user-attachments/assets/2be9d9b2-1983-4327-8332-6776f641bd26)
 
-A graph based datastructure for the purpose of modeling gridlike things. While exploring graph algorithms and datastructures, I realised that some well known turn based games could be modelled using graph data structure and algorithms. With Minesweeper and Tic Tac Toe in mind, I began a quest to figure out how well could these fit! In this repository you will find two things: the gridlike datastructure that I have now named Anansi (/əˈnɑːnsi/ ə-NAHN-see; literally translates to spider) after the Akan folktale character. This is because the grid resembles a spider's web. Secondly, you will find a number of games that I aim to model with Anansi.
+Anansi (pronounced /əˈnɑːnsi/ ə-NAHN-see), named after the Akan folktale character known for his web-like connections, is a graph-based grid designed for modeling grid-like structures and turn-based games. The grid resembles a spider's web, which inspired the name.
 
-# Getting Started
-The following section provides information on how you can run the games that are built on top of anansi. First you will need to run a server. You can do this in the following ways:
+## Overview
 
-Run `npm run server` which will start a shadow-cljs server. Connect you repl and run `(do (shadow/watch :<game-of-choice>) (shadow/repl :<game-of-choice>)` where `<game-of-choice>` is the build name according to the shadow-cljs.edn file.
+This repository includes:
+1. **The Anansi Data Structure**: A versatile grid-like data structure for modeling various turn-based games and grid-based scenarios.
+2. **Sample Games**: Implementations of classic games such as Tic Tac Toe and Minesweeper using the Anansi data structure.
 
-## Tic Tac Toe
-The build name for tic tac toe is `tictactoe`. One you have ran the watch code for this build you can visit `localhost:8021` to open the tic tac toe game.
+## Getting Started
 
-## Minesweeper
-The build name for minesweeper is `minesweeper`. One you have ran the watch code for this build you can visit `localhost:8020` to open the minesweeper game.
+To explore and run the games, follow these instructions:
+
+### 1. Setup
+
+Ensure you have the necessary dependencies installed and the server is running.
+
+### 2. Running Tic Tac Toe
+
+- **Command**: `npm run tictactoe`
+- **Access**: Open your web browser and visit [http://localhost:8021](http://localhost:8021) to start the Tic Tac Toe game.
+
+### 3. Running Minesweeper
+
+- **Command**: `npm run minesweeper`
+- **Access**: Open your web browser and visit [http://localhost:8020](http://localhost:8020) to start the Minesweeper game.
+
